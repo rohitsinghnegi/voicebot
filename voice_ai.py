@@ -7,9 +7,11 @@ from playsound import playsound
 from langdetect import detect
 import json
 from datetime import datetime
+from dotenv import load_dotenv
 
 # Configure Google Gemini API
-genai.configure(api_key="AIzaSyACMiSWDAzP-jBL3G0w992Lixe_we6zehI")
+load_dotenv() # This loads the variables from your .env file
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel('gemini-2.5-flash')
 
 r = sr.Recognizer()
@@ -142,7 +144,7 @@ def select_language():
                 speak_fast(confirmation_text, selected_lang)
                 return selected_lang
             else:
-                print("❌ Invalid choice. Please select 1-9 or 0")
+                print(" Invalid choice. Please select 1-9 or 0")
                 # Speak error message in Hindi
                 error_text = "गलत विकल्प। कृपया 1 से 9 या 0 दबाएं।"
                 speak_fast(error_text, 'hi')
@@ -264,14 +266,14 @@ def listen_and_respond(selected_language):
         
         try:
             audio = r.listen(source, timeout=5, phrase_time_limit=10)
-            print("✅ Processing your health question...")
+            print(" Processing your health question...")
         except sr.WaitTimeoutError:
-            print("⏰ No speech detected within timeout")
+            print("No speech detected within timeout")
             return
 
         try:
             query = r.recognize_google(audio)
-            print(f"🗣️ You said: {query}")
+            print(f" You said: {query}")
 
             # Initialize ai_reply
             ai_reply = ""
@@ -294,11 +296,11 @@ def listen_and_respond(selected_language):
             try:
                 response = model.generate_content(prompt)
                 ai_reply = response.text
-                print(f"🏥 Health Expert Response: {ai_reply}")
+                print(f" Health Expert Response: {ai_reply}")
             except Exception as api_error:
-                print(f"❌ API Error: {api_error}")
+                print(f" API Error: {api_error}")
                 ai_reply = "Sorry, I'm having trouble processing your request. Please try again."
-                print(f"🏥 Health Expert Response: {ai_reply}")
+                print(f" Health Expert Response: {ai_reply}")
             
             # Update the last conversation entry with AI response
             if conversation_history:
@@ -311,17 +313,17 @@ def listen_and_respond(selected_language):
             speak_fast(ai_reply, selected_language)
 
         except sr.UnknownValueError:
-            print("❌ Sorry, couldn't understand your voice. Please speak clearly.")
+            print(" Sorry, couldn't understand your voice. Please speak clearly.")
         except Exception as e:
-            print(f"❌ Error: {e}")
+            print(f" Error: {e}")
 
 def show_conversation_history():
     """Show conversation history"""
     if not conversation_history:
-        print("📝 No conversation history yet.")
+        print(" No conversation history yet.")
         return
     
-    print(f"\n📝 Conversation History ({len(conversation_history)} exchanges):")
+    print(f"\n Conversation History ({len(conversation_history)} exchanges):")
     print("=" * 60)
     for i, entry in enumerate(conversation_history, 1):
         print(f"\n{i}. [{entry['timestamp']}]")
@@ -331,7 +333,7 @@ def show_conversation_history():
 
 def show_help():
     """Show available commands and features"""
-    print("\n🏥 HealthBot - AI Health Assistant (India)")
+    print("\n HealthBot - AI Health Assistant (India)")
     print("=" * 60)
     print("Supported Indian Languages:")
     print("• English (EN) • Hindi (हिंदी) • Bengali (বাংলা)")
@@ -356,11 +358,11 @@ if __name__ == "__main__":
     # First, ask user to select language
     selected_language = select_language()
     if selected_language is None:
-        print("\n🏥 HealthBot stopped. Thank you for using our service!")
+        print("\n HealthBot stopped. Thank you for using our service!")
         exit()
     
-    print(f"\n✅ Language selected: {selected_language.upper()}")
-    print("🏥 HealthBot is now ready in your selected language!")
+    print(f"\n Language selected: {selected_language.upper()}")
+    print(" HealthBot is now ready in your selected language!")
     
     try:
         while True:
@@ -368,7 +370,7 @@ if __name__ == "__main__":
             print("\n" + "="*60)
             print("Ready for next question...")
     except KeyboardInterrupt:
-        print("\n🏥 HealthBot stopped. Thank you for using our service!")
+        print("\n HealthBot stopped. Thank you for using our service!")
         show_conversation_history()
 
 
